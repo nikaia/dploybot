@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+
+var program = require('commander'),
+    logger = require('../lib/logger'),
+    config = require('../lib/config'),
+    open = require('open');
+
+/*
+ |--------------------------------------------------------------------------
+ | Program
+ |--------------------------------------------------------------------------
+ */
+program
+  .usage('')
+  .parse(process.argv);
+
+var file = config.file();
+console.log('Opening : ' + file);
+open(file);

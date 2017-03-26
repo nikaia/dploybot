@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+var program = require('commander'),
+    _ = require('underscore'),
+    Grid = require('term-grid'),
+    logger = require('../lib/logger'),
+    api = require('../lib/api');
+
+/*
+ |--------------------------------------------------------------------------
+ | Program
+ |--------------------------------------------------------------------------
+ */
+program
+  .usage('')
+  .parse(process.argv);
+
+logger.spin('Fetching repos, please wait ...');
+
+api.getRepositories(function(repos){
+
+  logger.stopSpinner();
+
+    var items = _.map(repos.entries, function(repo){
+      var item = [];
+      item.push(repo.id);
+      item.push(repo.title);
+
+      return item;
+  });
+
+  var grid = new Grid(items);
+  grid.draw();
+
+  console.log('Repositories count : ' + items.length);
+});

@@ -1,0 +1,78 @@
+#!/usr/bin/env node
+
+var program = require('commander'),
+    _ = require('underscore'),
+    clc = require('cli-color'),
+    logger = require('../lib/logger'),
+    Grid = require('term-grid'),
+    api = require('../lib/api');
+
+var color_map = {
+  'white' : 'white',
+  'pink': 'magenta',
+  'red': 'red',
+  'red-orange': 'red',
+  'orange': 'red',
+  'yellow': 'yellow',
+  'yellow-green': 'yellow',
+  'aqua-green': 'cyan',
+  'green': 'Bright',
+  'green-blue': 'green',
+  'sky-blue': 'blue',
+  'light-blue': 'blue',
+  'blue': 'blue',
+  'orchid': 'blue',
+  'violet': 'blue',
+  'brown': 'black',
+  'black': 'black',
+  'grey': 'white'
+};
+
+/*
+ |--------------------------------------------------------------------------
+ | Program
+ |--------------------------------------------------------------------------
+ */
+program
+  .usage('<repo>')
+  .parse(process.argv);
+
+var repoName = program.args[0];
+
+if (!repoName) {
+    logger.fatal('You need to pass in the <repo> argument.');
+}
+
+api.getEnvironments(repoName, function(envs){
+
+  logger.stopSpinner();
+
+  var items = _.map(envs, function(env){
+      return [
+        ' ' + env.id,
+        ' ' + env.name,
+        ' ' + env.branch_name,
+        ' ' + (Boolean(env.is_automatic) ? clc.green('✓') : clc.red('✗')),
+        '  ' +  ( env.current_version ? env.current_version.substring(0, 7) : 'none'),
+        '  ' + env.updated_at
+      ];
+  });
+
+  if(!items.length){
+    logger.warn('Sorry, no environment found for this repository.');
+    return;
+  }
+
+  logger.info('Found ' + items.length + ' environment(s) : ');
+  logger.newline();
+
+  var grid = new Grid(
+    _.union(
+      [['ID', 'NAME', 'BRANCH_NAME', 'AUTOMATIC', 'REVISION', 'UPDATED AT']],
+      [['--', '----', '-----------', '---------', '--------', '----------']],
+      items
+    )
+  );
+
+  grid.draw();
+});

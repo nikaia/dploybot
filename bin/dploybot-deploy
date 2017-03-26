@@ -1,0 +1,119 @@
+#!/usr/bin/env node
+
+var program = require('commander'),
+    _ = require('underscore'),
+    logger = require('../lib/logger'),
+    api = require('../lib/api');
+
+/*
+ |--------------------------------------------------------------------------
+ | Program
+ |--------------------------------------------------------------------------
+ */
+program
+    .usage('<repo> <env>')
+    .parse(process.argv);
+
+var repoName = program.args[0],
+    envsArgument = program.args[1],
+    comment = program.args[2],
+    envNames = [];
+
+if (!repoName || !envsArgument) {
+    logger.fatal('You need to pass in the <repo> and the <env> arguments.');
+}
+
+function checkDeploymentState(deplyoment_id, delay, cb) {
+
+    setTimeout(function () {
+
+        api.deployment(deplyoment_id, function (deployment) {
+            switch (deployment.state) {
+
+                case 'waiting':
+                    logger.spin('waiting');
+                    checkDeploymentState(deplyoment_id, 2000, cb);
+                    break;
+
+                case 'pending':
+                    logger.spin('pending');
+                    checkDeploymentState(deplyoment_id, 2000, cb);
+                    break;
+
+                case 'skipped':
+                    logger.stopSpinner();
+                    logger.warn('Deployment skipped.');
+                    cb.call();
+                    break;
+
+                case 'failed':
+                    logger.stopSpinner();
+                    logger.fatal('Deployment failed.');
+                    cb.call();
+                    break;
+
+                case 'success':
+                    logger.stopSpinner();
+                    logger.success('Deployed successfully.');
+                    cb.call();
+                    break;
+
+                default:
+                    logger.stopSpinner();
+                    logger.warn('Unknown state  : ' + deployment.state);
+                    cb.call();
+                    break;
+            }
+        });
+
+    }, delay || 0);
+}
+
+
+function deployToEnv(repoName, envName, cb) {
+    logger.newline();
+    logger.info('Deploying to <' + envName + '>');
+
+    // Getting user Id
+    api.configuredUser(function(user){
+
+        // Getting all repo environments
+        api.getEnvironments(repoName, function (envs) {
+            envs = _.indexBy(envs, 'name');
+            var env = envs[envName];
+
+            if (!env) {
+                logger.fatal('Cannot find the requested environment. Available ones are : ' + _.pluck(envs, 'name'));
+                process.exit(1);
+            }
+
+            // Fire the deployment to the last environment branch revision
+            logger.spin('Deploying last revision');
+            api.deploy(env.id, null, user.id, comment, function (deployment) {
+                checkDeploymentState(deployment.id, 0, cb);
+            });
+
+        });
+
+    });
+}
+
+function deployToNextEnv(repoName, envNames) {
+    if (envNames.length < 1) {
+        logger.newline();
+        logger.info('Completed.');
+        return;
+    }
+
+    deployToEnv(repoName, envNames.shift(), function () {
+        deployToNextEnv(repoName, envNames);
+    });
+}
+
+
+// Prepare env names
+var envNames = envsArgument.split(',');
+envNames = _.map(envNames, function (e) {
+    return e.trim();
+});
+deployToNextEnv(repoName, envNames);

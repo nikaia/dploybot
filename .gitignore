@@ -1,0 +1,7 @@
+# Global
+.idea
+.DS_Store
+Thumbs.db
+
+node_modules
+*.log

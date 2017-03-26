@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+var program = require('commander'),
+    config = require("../lib/config");
+
+/*
+ |--------------------------------------------------------------------------
+ | Program
+ |--------------------------------------------------------------------------
+ */
+program
+  .usage('')
+  .parse(process.argv);
+
+config.createConfigFile();
