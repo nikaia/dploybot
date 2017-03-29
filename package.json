@@ -1,7 +1,7 @@
 {
   "name": "dploybot",
   "description": "Deploy your deploybot.com projects from CLI",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./bin/dploybot",
   "author": "Nassif Bourguig nbourguig@gmail.com",
   "contributors": [
