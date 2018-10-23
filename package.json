@@ -1,7 +1,7 @@
 {
   "name": "dploybot",
   "description": "Deploy your deploybot.com projects from CLI",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "main": "./bin/dploybot",
   "author": "Nassif Bourguig nbourguig@gmail.com",
   "contributors": [
@@ -38,8 +38,8 @@
     "cross-spawn": "^4.0.0",
     "indent": "0.0.2",
     "nconf": "^0.8.4",
-    "open": "0.0.5",
-    "superagent": "^2.0.0",
+    "opn": "^5.4.0",
+    "superagent": ">=3.7.0",
     "term-grid": "^0.1.8",
     "underscore": "^1.8.3"
   }

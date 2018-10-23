@@ -3,7 +3,7 @@
 var program = require('commander'),
     logger = require('../lib/logger'),
     config = require('../lib/config'),
-    open = require('open');
+    opn = require('opn');
 
 /*
  |--------------------------------------------------------------------------
@@ -16,4 +16,4 @@ program
 
 var file = config.file();
 console.log('Opening : ' + file);
-open(file);
+opn(file);
