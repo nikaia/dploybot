@@ -37,7 +37,7 @@
     "commander": "^2.9.0",
     "cross-spawn": "^4.0.0",
     "indent": "0.0.2",
-    "nconf": "^0.8.4",
+    "nconf": "^0.11.4",
     "opn": "^5.4.0",
     "superagent": ">=3.7.0",
     "term-grid": "^0.1.8",
